@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link media="all" href="css/style.css" type="text/css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+    <script src="js/upload.js"></script>
+  </head>
+  <body>
+    <form id="uploadForm" action="" method="POST" enctype="multipart/form-data">
+      <div id="text-input">
+        <div>
+          <label>Title</label>
+          <input required id="title_field" name="title" type="text"></input>
+        </div>
+        <div>
+          <label>Description</label>
+          <textarea name="description" id="description_field"></textarea>
+        </div>
+      </div>
+      <label>Select video</label>
+  		<input required id="uploadFile" type="file" name="file" />
+  		<div id="uploadBar" style="width:480px; float:left; display:none; background:#FFF;">
+          <div id="uploadProgress" style="background:#46800d; width:0px; height:18px;"></div></div>
+    		<button type="submit" id="uploadButton">Upload</button>
+        <button disabled type="button" id="pauseButton">Pause</button>
+    </form>
+    <script type="text/javascript">
+    var clicked = false;
+    var pauseButton = $("#pauseButton");
+
+    document.getElementById('uploadForm').onsubmit = function(event) {
+
+      event.preventDefault();
+      var filename;
+
+      if(!BotrUpload.resumeSupported()) {
+        alert("Browser not supported. Please use IE10+, Chrome, Firefox, Safari, Edge, or Opera");
+        return false;
+      }
+
+      var data = {
+        title: this.title.value,
+        description: this.description.value,
+        tags: 'adaptive,cms-upload,no-captions'
+      };
+
+      $.get("http://www1.wbrz.com/maintenance/jw_test.cfm", data, function(data) {
+        // Attach a BotrUpload instance to the form.
+        if (data.status != "ok"){
+          alert("Server error, please try again later.")
+          return;
+        }
+        var media_key = data.media.key;
+        var upload = new BotrUpload(data.link, data.session_id);
+        upload.useForm($("#uploadFile").get(0));
+
+        pauseButton.click(function() {
+          clicked = !clicked;
+          if (!clicked) {
+            pauseButton.text('Resume');
+            upload.pause();
+          } else {
+            pauseButton.text('Pause');
+            upload.start();
+          }
+        });
+
+        // When the upload starts, we hide the input, show the progress and disable the button.
+        upload.onStart = function() {
+          filename = $("#uploadFile").val().split(/[\/\\]/).pop();
+          $("#uploadFile").css('display','none');
+          $("#uploadBar").css('display','block');
+          $("#uploadButton").attr('disabled','disabled');
+          if(pauseButton) {
+            pauseButton.removeAttr('disabled');
+          }
+        };
+
+        // During upload, we update both the progress div and the text below it.
+        upload.onProgress = function(bytes, total) {
+          // Round to one decimal
+          var pct = Math.floor(bytes * 1000 / total) / 10;
+          $("#uploadProgress").animate({'width': pct + '%'}, 400);
+          $("#uploadText").html('Uploading ' + filename + ' (' + pct + '%) ...');
+        };
+
+        upload.onCompleted = function(size){
+          var pct = 100;
+          $("#uploadProgress").animate({'width': pct + '%'}, 400);
+          $("#uploadText").html('Completed uploading ' + filename);
+        }
+        upload.start();
+      }, 'json');
+    };
+    </script>
+  </body>
+</html>
