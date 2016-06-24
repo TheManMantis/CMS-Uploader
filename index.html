@@ -11,19 +11,19 @@
     <form id="uploadForm" action="" method="POST" enctype="multipart/form-data">
       <div id="text-input">
         <div>
-          <label>Title</label>
+          <h3>Title</h3>
           <input required id="title_field" name="title" type="text"></input>
         </div>
         <div>
-          <label>Description</label>
+          <h3>Description</h3>
           <textarea name="description" id="description_field"></textarea>
         </div>
       </div>
-      <label>Select video</label>
-  		<input required id="uploadFile" type="file" name="file" />
-  		<div id="uploadBar" style="width:480px; float:left; display:none; background:#FFF;">
-          <div id="uploadProgress" style="background:#46800d; width:0px; height:18px;"></div></div>
-    		<button type="submit" id="uploadButton">Upload</button>
+      <h3>Select video</h3>
+      <input class="submit" required id="uploadFile" type="file" name="file" />
+      <div id="uploadBar" style="width:480px; float:left; display:none; background:#FFF;">
+          <div id="uploadProgress" style="background:rgb(9, 199, 160); width:0px; height:10px;"></div></div>
+        <button class="upload" type="submit" id="uploadButton">Upload</button>
         <button disabled type="button" id="pauseButton">Pause</button>
     </form>
     <script type="text/javascript">
